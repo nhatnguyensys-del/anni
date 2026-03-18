@@ -69,6 +69,35 @@
     canvas { position: fixed; top: 0; left: 0; pointer-events: none; }
     #content { display: none; }
 
+#giftContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
+  flex-direction: column;
+}
+
+#giftBox {
+  font-size: 6em;
+  animation: bounceBox 1s infinite alternate, glowBox 1.5s infinite alternate;
+  cursor: pointer;
+}
+
+@keyframes bounceBox {
+  from { transform: translateY(0); }
+  to { transform: translateY(-15px); }
+}
+
+
+@keyframes glowProposal {
+  from { text-shadow: 0 0 20px #fff, 0 0 30px #ff6b6b; }
+  to { text-shadow: 0 0 40px #fff, 0 0 60px #ff1493; }
+}
+@keyframes glowBox {
+  from { text-shadow: 0 0 20px #fff, 0 0 30px #ff6b6b; }
+  to { text-shadow: 0 0 40px #fff, 0 0 60px #ff1493; }
+}
+
     #countdown {
       margin-top:30px;
       font-size:1.5em;
@@ -104,6 +133,12 @@
     <div class="btn" onclick="openLetter()">💌 Click để mở thư tình 💌</div>
   </div>
 
+
+<!-- Nhạc nền -->
+<audio id="bgMusic" src="1.mp3" loop></audio>
+<!-- Canvas pháo hoa -->
+<canvas id="canvas"></canvas>
+
   <!-- Nội dung chính -->
   <div id="content">
     <h1>
@@ -118,11 +153,25 @@
     <p>🌹 Chúng ta sẽ cùng nhau viết nên câu chuyện tình yêu đẹp nhất từ hôm nay cho đến mãi mãi.</p>
     <p>💫 Anh hứa sẽ luôn nắm tay em, cùng nhau đi hết mọi chặng đường, để mỗi ngày bên nhau đều là một ngày kỷ niệm.</p>
     <div id="countdown"></div>
-    <audio id="bgMusic" loop>
-      <source src="romantic.mp3" type="audio/mpeg">
-    </audio>
-    <canvas id="canvas"></canvas>
-  </div>
+
+<div class="btn" onclick="openGift()">🎁 Mở quà 🎁</div>
+
+<div id="giftContainer">
+  <!-- Hộp quà động -->
+  <div id="giftBox">🎁</div>
+
+  <!-- Video cầu hôn -->
+ <!-- Video cầu hôn -->
+<video id="giftVideo" width="640" controls style="display:none;" loop>
+  <source src="propose-ring.mp4" type="video/mp4">
+  Trình duyệt của bạn không hỗ trợ video.
+</video>
+</div>
+<!-- Lời cầu hôn -->
+<div id="proposalText" style="display:none; margin-top:20px; font-size:2em; color:#d6336c; 
+     animation: glowProposal 1.5s infinite alternate;">
+  💍 Em có đồng ý làm vợ anh không? 💍
+</div>
 
   <script>
     const letter = document.getElementById("letter");
@@ -143,7 +192,39 @@
       setInterval(createStar, 300);
     }
 
-    function random(min, max) { return Math.random() * (max - min) + min; }
+function openGift() {
+  const giftBox = document.getElementById("giftBox");
+  const giftVideo = document.getElementById("giftVideo");
+  const proposalText = document.getElementById("proposalText");
+
+  // Ẩn hộp quà
+  giftBox.style.display = "none";
+
+  // Hiện video và phát
+  giftVideo.style.display = "block";
+  giftVideo.play().catch(err => console.log("Không phát được video:", err));
+
+  // Ngừng nhạc nền khi mở quà
+  if (music && !music.paused) {
+    music.pause();
+    music.currentTime = 0;
+  }
+
+  // Thêm hiệu ứng trái tim và sao khi video phát
+  const heartInterval = setInterval(createHeart, 600);
+  const starInterval = setInterval(createStar, 800);
+
+  // Hiện lời cầu hôn sau vài giây
+  setTimeout(() => {
+    proposalText.style.display = "block";
+  }, 3000); // hiện sau 3 giây
+
+  // Khi video dừng thì ngừng tạo hiệu ứng
+  giftVideo.addEventListener("pause", () => {
+    clearInterval(heartInterval);
+    clearInterval(starInterval);
+  });
+}    function random(min, max) { return Math.random() * (max - min) + min; }
 
     // Pháo hoa
     function fireworks() {
